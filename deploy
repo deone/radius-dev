@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BILLINGPATH=/root/billing/billing
+BILLINGPATH=/root/billing-xwf/billing
 INSTPATH=/usr/lib/python2.7/site-packages
 
 echo "Removing obsolete files..."
