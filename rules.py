@@ -156,7 +156,7 @@ def check_subscription_validity(subscription, user):
         set_logged_in(user)
 
         return (radiusd.RLM_MODULE_OK,
-            (('Session-Timeout', package_period),('Acct-Interim-Interval', '7200'),('Maximum-Data-Rate-Upstream', bandwidth_limit),('Maximum-Data-Rate-Downstream', bandwidth_limit)),
+            (('Session-Timeout', package_period),('Acct-Interim-Interval', '300'),('Maximum-Data-Rate-Upstream', bandwidth_limit),('Maximum-Data-Rate-Downstream', bandwidth_limit)),
             (('Auth-Type', 'python'),))
     else:
         return (radiusd.RLM_MODULE_REJECT,
