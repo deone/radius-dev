@@ -144,9 +144,20 @@ def set_logged_in(user):
     return user
 
 def check_subscription_validity(subscription, user):
-    if subscription.is_valid():
-        now = timezone.now()
+    now = timezone.now()
 
+    print_info('Subscription stop time: ' + str(subscription.stop))
+    print_info('Now: ' + str(now))
+    print_info(str(subscription.stop - now))
+
+    stop_in_seconds = time.mktime(subscription.stop.timetuple())
+    now_in_seconds = time.mktime(now.timetuple())
+
+    print_info('Subscription stop time in seconds: ' + str(stop_in_seconds))
+    print_info('Now in seconds: ' + str(now_in_seconds))
+    print_info(str(stop_in_seconds - now_in_seconds))
+
+    if subscription.stop > now and subscription.has_data_left():
         package_period = str((subscription.stop - now).total_seconds())
         package_period = package_period.split(".")[0]
 
