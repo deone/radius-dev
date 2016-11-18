@@ -171,7 +171,7 @@ def check_subscription_validity(subscription, user):
             (('Auth-Type', 'python'),))
     else:
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'Subscription Invalid'),), (('Auth-Type', 'python'),))
+            (('Reply-Message', "Subscription Invalid. Please click on 'Manage Account' to renew your subscription."),), (('Auth-Type', 'python'),))
 
 def display_reply_message(error_code):
     return (radiusd.RLM_MODULE_REJECT,
