@@ -318,21 +318,21 @@ def accounting(p):
 
                 if data_balance <= 0:
                     group.data_balance = 0
-		    #######
-		    print_info('*** - Sending Disconnect-Request to Meraki ***')
-		    if acct_status_type == 'Interim-Update':
-		        output = send_disconnect_request(acct_session_id)
-		        if output.find('Disconnect-ACK') != -1:
-			    print_info("*** - User Disconnected ***")
-		        else:
-			    print_info("*** - User Disconnection Failed ***")
-		    #######
+                    #######
+                    print_info('*** - Sending Disconnect-Request to Meraki ***')
+                    if acct_status_type == 'Interim-Update':
+                        output = send_disconnect_request(acct_session_id)
+                        if output.find('Disconnect-ACK') != -1:
+                            print_info("*** - User Disconnected ***")
+                        else:
+                            print_info("*** - User Disconnection Failed ***")
+                    #######
                 else:
                     group.data_balance = data_balance
 
                 # Only group users are set logged in. So this
                 # would make no difference with individual users.
-	        radcheck.is_logged_in = False
+                radcheck.is_logged_in = False
                 group.save()
             else:
                 usage = Decimal(data_usage) - radcheck.data_usage
@@ -342,34 +342,34 @@ def accounting(p):
 
                 if data_balance <= 0:
                     radcheck.data_balance = 0
-		    #######
-		    print_info('*** - Sending Disconnect-Request to Meraki ***')
-		    if acct_status_type == 'Interim-Update':
-		        output = send_disconnect_request(acct_session_id)
-		        if output.find('Disconnect-ACK') != -1:
-			    print_info("*** - User Disconnected ***")
-		        else:
-			    print_info("*** - User Disconnection Failed ***")
-		    #######
+                    #######
+                    print_info('*** - Sending Disconnect-Request to Meraki ***')
+                    if acct_status_type == 'Interim-Update':
+                        output = send_disconnect_request(acct_session_id)
+                        if output.find('Disconnect-ACK') != -1:
+                            print_info("*** - User Disconnected ***")
+                        else:
+                            print_info("*** - User Disconnection Failed ***")
+                    #######
                 else:
                     radcheck.data_balance = data_balance
             radcheck.save()
-	else:
-	    # Deal with instant vouchers here
-	    pass
+        else:
+            # Deal with instant vouchers here
+            pass
 
     if acct_status_type == 'Stop':
-	if user is not None:
-	    if user.subscriber.group is not None:
+        if user is not None:
+            if user.subscriber.group is not None:
                 group = GroupAccount.objects.get(name__exact=user.subscriber.group.name)
-		group.data_usage = 0
-		group.save()
-	    else:
-		radcheck.data_usage = 0
-		radcheck.save()
-	else:
-	    # Deal with instant vouchers here
-	    pass
+                group.data_usage = 0
+                group.save()
+            else:
+                radcheck.data_usage = 0
+                radcheck.save()
+        else:
+            # Deal with instant vouchers here
+            pass
 
     return radiusd.RLM_MODULE_OK
 
