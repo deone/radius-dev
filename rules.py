@@ -200,7 +200,7 @@ def authorize(p):
 
     if not ap:
         print_info('*** - AP Not Found ***')
-        return (radiusd.RLM_MODULE_INVALID,
+        return (radiusd.RLM_MODULE_USERLOCK,
             (('Reply-Message', 'AP Not Found. Please call customer care.'),), (('Auth-Type', 'python'),))
     else:
         print_info('*** - AP fetched successfully: ' + ap.mac_address + ' ***')
