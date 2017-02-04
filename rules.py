@@ -296,6 +296,7 @@ def authorize(p):
     if not subscription:
         print_info('*** User Has No Subscription... ***')
         message = "You have no subscription. Click 'Manage Account' below to recharge your account and purchase a package."
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
                 (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
