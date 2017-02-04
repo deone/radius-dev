@@ -236,15 +236,19 @@ def authorize(p):
 
     if voucher is None and user is None:
         print_info('*** - User Or Voucher Not Found ***')
+        message = 'User account or Voucher does not exist.'
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'User account or Voucher does not exist.'),), (('Auth-Type', 'python'),)) 
+            (('Reply-Message', message),), (('Auth-Type', 'python'),))
 
     # Check whether AP allows user.
     print_info('*** AP Checking User Eligibility... ***')
     if not check_user_eligibility_on_ap(user, ap):
         print_info('*** - AP Disallowed User ***')
+        message = 'User Unauthorized.'
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'User Unauthorized.'),), (('Auth-Type', 'python'),))
+            (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
         print_info('*** - AP Allowed User ***')
 
@@ -291,8 +295,9 @@ def authorize(p):
 
     if not subscription:
         print_info('*** User Has No Subscription... ***')
+        message = "You have no subscription. Click 'Manage Account' below to recharge your account and purchase a package."
         return (radiusd.RLM_MODULE_REJECT,
-                (('Reply-Message', "You have no subscription. Click 'Manage Account' below to recharge your account and purchase a package."),), (('Auth-Type', 'python'),))
+                (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
         # Check subscription validity
         print_info('*** Check User Subscription Validity ... ***')
