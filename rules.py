@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from billing.settings import PACKAGE_TYPES_HOURS_MAP
-from accounts.models import AccessPoint, Radcheck, GroupAccount
+from accounts.models import AccessPoint, Radcheck, GroupAccount, Radpostauth
 from accounts.helpers import md5_password
 from packages.models import PackageSubscription, InstantVoucher
 
