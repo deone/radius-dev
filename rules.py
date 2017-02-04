@@ -310,6 +310,8 @@ def authorize(p):
         else:
             print_info('*** - User Subscription Invalid ***')
             print_info('*** - Sending Access-Reject to Meraki ***')
+            message = response[1][0][1]
+            set_reply_message(nas_identifier, username, password, message, client_mac)
 
         return response
 
