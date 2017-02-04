@@ -183,13 +183,14 @@ def send_disconnect_request(acct_session_id):
     output = subprocess.check_output(['radclient', '-x', 'n110.meraki.com:3799', 'disconnect', 'testing123'], stdin=echo.stdout)
     return output
 
-def set_reply_message(nas_id, username, password, message):
+def set_reply_message(nas_id, username, password, message, client_mac):
     if not nas_id.startswith('Meraki'):
         Radpostauth.objects.create(
             username=username,
             pass_field=password,
             reply='Access-Reject',
-            message=message
+            message=message,
+            client_mac=client_mac
         )
 
 
@@ -206,6 +207,7 @@ def authorize(p):
     username = trim_value(params['User-Name'])
     password = trim_value(params['User-Password'])
     nas_identifier = trim_value(params['NAS-Identifier'])
+    client_mac = trim_value(params['Calling-Station-Id'])
 
     # Fetch AP
     print_info('*** Fetching AP... ***')
@@ -214,7 +216,7 @@ def authorize(p):
     if not ap:
         print_info('*** - AP Not Found ***')
         message = 'AP Not Found. Please call customer care.'
-        set_reply_message(nas_identifier, username, password, message)
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
             (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
