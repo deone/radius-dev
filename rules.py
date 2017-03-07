@@ -259,7 +259,9 @@ def authorize(p):
         print_info('*** Checking Password... ***')
         code = check_user_password(user, password)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - User Password Correct :-) ***')
@@ -268,7 +270,9 @@ def authorize(p):
         print_info('*** Checking User Account Status... ***')
         code = check_user_account_status(user)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - User Account Active ***')
@@ -282,7 +286,9 @@ def authorize(p):
         print_info('*** Checking Password... ***')
         code = check_voucher_password(str(voucher.value), password)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - Voucher Password Correct :-) ***')
