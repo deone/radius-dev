@@ -203,13 +203,13 @@ def authorize(p):
     print_info("*** Response Content: " + str(p) + " ***")
     params = dict(p)
 
-    ap_mac = create_mac(params['Called-Station-Id'])
+    # ap_mac = create_mac(params['Called-Station-Id'])
     username = trim_value(params['User-Name'])
     password = trim_value(params['User-Password'])
     nas_identifier = trim_value(params['NAS-Identifier'])
     client_mac = trim_value(params['Calling-Station-Id'])
 
-    # Fetch AP
+    """ # Fetch AP
     print_info('*** Fetching AP... ***')
     ap = get_ap(ap_mac)
 
@@ -220,7 +220,7 @@ def authorize(p):
         return (radiusd.RLM_MODULE_REJECT,
             (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
-        print_info('*** - AP fetched successfully: ' + ap.mac_address + ' ***')
+        print_info('*** - AP fetched successfully: ' + ap.mac_address + ' ***') """
 
     # Fetch user/voucher
     user = None
@@ -241,7 +241,7 @@ def authorize(p):
         return (radiusd.RLM_MODULE_REJECT,
             (('Reply-Message', message),), (('Auth-Type', 'python'),))
 
-    # Check whether AP allows user.
+    """ # Check whether AP allows user.
     print_info('*** AP Checking User Eligibility... ***')
     if not check_user_eligibility_on_ap(user, ap):
         print_info('*** - AP Disallowed User ***')
@@ -250,7 +250,7 @@ def authorize(p):
         return (radiusd.RLM_MODULE_REJECT,
             (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
-        print_info('*** - AP Allowed User ***')
+        print_info('*** - AP Allowed User ***') """
 
     if user:
         print_info('*** - User fetched successfully: ' + user.username + ' ***')
