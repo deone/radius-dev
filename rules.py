@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from billing.settings import PACKAGE_TYPES_HOURS_MAP
-from accounts.models import AccessPoint, Radcheck, GroupAccount
+from accounts.models import AccessPoint, Radcheck, GroupAccount, Radpostauth
 from accounts.helpers import md5_password
 from packages.models import PackageSubscription, InstantVoucher
 
@@ -71,14 +71,14 @@ def get_or_create_subscription(voucher):
 def get_user_subscription(user):
     if user.subscriber.group is not None:
         try:
-	    subscription = user.subscriber.group.grouppackagesubscription_set.all()[0]
-	except:
-	    return None
+            subscription = user.subscriber.group.grouppackagesubscription_set.all()[0]
+        except:
+            return None
     else:
-	try:
+        try:
             subscription = user.radcheck.packagesubscription_set.all()[0]
-	except:
-	    return None
+        except:
+            return None
 
     return subscription
 
@@ -149,6 +149,7 @@ def check_subscription_validity(subscription, user):
     print_info('Subscription stop time: ' + str(subscription.stop))
     print_info('Now: ' + str(now))
     print_info(str(subscription.stop - now))
+<<<<<<< HEAD
 
     stop_in_seconds = time.mktime(subscription.stop.timetuple())
     now_in_seconds = time.mktime(now.timetuple())
@@ -157,6 +158,16 @@ def check_subscription_validity(subscription, user):
     print_info('Now in seconds: ' + str(now_in_seconds))
     print_info(str(stop_in_seconds - now_in_seconds))
 
+=======
+
+    stop_in_seconds = time.mktime(subscription.stop.timetuple())
+    now_in_seconds = time.mktime(now.timetuple())
+
+    print_info('Subscription stop time in seconds: ' + str(stop_in_seconds))
+    print_info('Now in seconds: ' + str(now_in_seconds))
+    print_info(str(stop_in_seconds - now_in_seconds))
+
+>>>>>>> xwf
     if subscription.stop > now and subscription.has_data_left():
         package_period = str((subscription.stop - now).total_seconds())
         package_period = package_period.split(".")[0]
@@ -183,6 +194,16 @@ def send_disconnect_request(acct_session_id):
     output = subprocess.check_output(['radclient', '-x', 'n110.meraki.com:3799', 'disconnect', 'testing123'], stdin=echo.stdout)
     return output
 
+def set_reply_message(nas_id, username, password, message, client_mac):
+    if not nas_id.startswith('Meraki'):
+        Radpostauth.objects.create(
+            username=username,
+            pass_field=password,
+            reply='Access-Reject',
+            message=message,
+            client_mac=client_mac
+        )
+
 
 
 def instantiate(p):
@@ -192,21 +213,25 @@ def instantiate(p):
 def authorize(p):
     print_info("*** Response Content: " + str(p) + " ***")
     params = dict(p)
-    ap_mac = create_mac(params['Called-Station-Id'])
 
-    # Fetch AP
+    # ap_mac = create_mac(params['Called-Station-Id'])
+    username = trim_value(params['User-Name'])
+    password = trim_value(params['User-Password'])
+    nas_identifier = trim_value(params['NAS-Identifier'])
+    client_mac = trim_value(params['Calling-Station-Id'])
+
+    """ # Fetch AP
     print_info('*** Fetching AP... ***')
     ap = get_ap(ap_mac)
 
     if not ap:
         print_info('*** - AP Not Found ***')
+        message = 'AP Not Found. Please call customer care.'
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'AP Not Found. Please call customer care.'),), (('Auth-Type', 'python'),))
+            (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
-        print_info('*** - AP fetched successfully: ' + ap.mac_address + ' ***')
-
-    username = trim_value(params['User-Name'])
-    password = trim_value(params['User-Password'])
+        print_info('*** - AP fetched successfully: ' + ap.mac_address + ' ***') """
 
     # Fetch user/voucher
     user = None
@@ -222,17 +247,21 @@ def authorize(p):
 
     if voucher is None and user is None:
         print_info('*** - User Or Voucher Not Found ***')
+        message = 'User account or Voucher does not exist.'
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'User account or Voucher does not exist.'),), (('Auth-Type', 'python'),)) 
+            (('Reply-Message', message),), (('Auth-Type', 'python'),))
 
-    # Check whether AP allows user.
+    """ # Check whether AP allows user.
     print_info('*** AP Checking User Eligibility... ***')
     if not check_user_eligibility_on_ap(user, ap):
         print_info('*** - AP Disallowed User ***')
+        message = 'User Unauthorized.'
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-            (('Reply-Message', 'User Unauthorized.'),), (('Auth-Type', 'python'),))
+            (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
-        print_info('*** - AP Allowed User ***')
+        print_info('*** - AP Allowed User ***') """
 
     if user:
         print_info('*** - User fetched successfully: ' + user.username + ' ***')
@@ -241,7 +270,9 @@ def authorize(p):
         print_info('*** Checking Password... ***')
         code = check_user_password(user, password)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - User Password Correct :-) ***')
@@ -250,7 +281,9 @@ def authorize(p):
         print_info('*** Checking User Account Status... ***')
         code = check_user_account_status(user)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - User Account Active ***')
@@ -264,7 +297,9 @@ def authorize(p):
         print_info('*** Checking Password... ***')
         code = check_voucher_password(str(voucher.value), password)
         if code in REPLY_CODES_MESSAGES:
-            print_info('*** - ' + REPLY_CODES_MESSAGES[code] + ' ***')
+            message = REPLY_CODES_MESSAGES[code]
+            print_info('*** - ' + message + ' ***')
+            set_reply_message(nas_identifier, username, password, message, client_mac)
             return display_reply_message(code)
         else:
             print_info('*** - Voucher Password Correct :-) ***')
@@ -277,8 +312,10 @@ def authorize(p):
 
     if not subscription:
         print_info('*** User Has No Subscription... ***')
+        message = "You have no subscription. Click 'Manage Account' below to recharge your account and purchase a package."
+        set_reply_message(nas_identifier, username, password, message, client_mac)
         return (radiusd.RLM_MODULE_REJECT,
-                (('Reply-Message', "You have no subscription. Click 'Manage Account' below to recharge your account and purchase a package."),), (('Auth-Type', 'python'),))
+                (('Reply-Message', message),), (('Auth-Type', 'python'),))
     else:
         # Check subscription validity
         print_info('*** Check User Subscription Validity ... ***')
@@ -290,6 +327,8 @@ def authorize(p):
         else:
             print_info('*** - User Subscription Invalid ***')
             print_info('*** - Sending Access-Reject to Meraki ***')
+            message = response[1][0][1]
+            set_reply_message(nas_identifier, username, password, message, client_mac)
 
         return response
 
