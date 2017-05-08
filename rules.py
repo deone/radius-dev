@@ -167,8 +167,12 @@ def check_subscription_validity(subscription, user):
         set_logged_in(user)
 
         return (radiusd.RLM_MODULE_OK,
-            (('Session-Timeout', package_period),('Acct-Interim-Interval', '1200'),('Maximum-Data-Rate-Upstream', bandwidth_limit),('Maximum-Data-Rate-Downstream', bandwidth_limit)),
-            (('Auth-Type', 'python'),))
+            (
+                ('Session-Timeout', package_period),('Acct-Interim-Interval', '1200'),('Maximum-Data-Rate-Upstream', bandwidth_limit),('Maximum-Data-Rate-Downstream', bandwidth_limit)
+            ))# ,
+            # (
+                # ('Auth-Type', 'python'),
+            # ))
     else:
         return (radiusd.RLM_MODULE_REJECT,
             (('Reply-Message', "Subscription Invalid. Please click on 'Manage Account' to renew your subscription."),), (('Auth-Type', 'python'),))
